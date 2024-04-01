@@ -12,19 +12,21 @@
       />
     </PageAction>
   </PageHeader>
-  <Select v-model="selectedGenre">
-    <SelectTrigger class="w-[180px]">
-      <SelectValue placeholder="Select a Genre" />
-    </SelectTrigger>
-    <SelectContent>
-      <SelectGroup>
-        <SelectLabel>Genre</SelectLabel>
-        <SelectItem v-for="(genre, id) in genres" :value="genre.value">
-          {{ genre.label }}
-        </SelectItem>
-      </SelectGroup>
-    </SelectContent>
-  </Select>
+  <div class="flex justify-end">
+    <Select v-model="selectedGenre">
+      <SelectTrigger class="w-[180px]">
+        <SelectValue placeholder="Select a Genre" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>Genre</SelectLabel>
+          <SelectItem v-for="(genre, id) in genres" :value="genre.value">
+            {{ genre.label }}
+          </SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  </div>
   <BookListingGridSkeleton v-if="pending" />
   <BookListingGrid ref="el" :data="books" />
 </template>
