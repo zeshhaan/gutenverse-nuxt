@@ -106,7 +106,7 @@ watchDebounced(
     await $fetch<BookResponse>("/api", {
       query: {
         page: currentPage.value,
-        search: encodeURIComponent(searchText.value),
+        search: searchText.value.trim(),
         genre: selectedGenre.value,
       },
       onResponse({ response }) {
