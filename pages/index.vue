@@ -6,7 +6,7 @@
     </PageHeaderDescription>
     <PageAction>
       <Input
-        v-model="searchValue"
+        v-model="searchText"
         placeholder="Try to type anything..."
         type="text"
       />
@@ -34,7 +34,7 @@ import type { Book, BookResponse } from "~/types";
 
 const el = ref<Document>();
 const currentPage = ref(1);
-const searchValue = ref("");
+const searchText = ref("");
 const selectedGenre = ref();
 const genres = ref([
   {
@@ -72,7 +72,7 @@ const genres = ref([
 const fetchBooks = await useFetch<BookResponse>("/api", {
   query: {
     page: currentPage.value,
-    search: encodeURIComponent(searchValue.value),
+    search: encodeURIComponent(searchText.value),
     genre: selectedGenre.value,
   },
   onResponse({ response }) {
@@ -83,7 +83,7 @@ const fetchBooks = await useFetch<BookResponse>("/api", {
   },
 });
 
-const { data, pending, refresh } = fetchBooks;
+const { data, pending } = fetchBooks;
 const books = ref<Book[]>(data.value?.results ?? []);
 
 useInfiniteScroll(
@@ -98,7 +98,26 @@ useInfiniteScroll(
   }
 );
 
-watch(selectedGenre, () => {
-  refresh();
-});
+watchDebounced(
+  [searchText, selectedGenre],
+  async () => {
+    await $fetch<BookResponse>("/api", {
+      query: {
+        page: currentPage.value,
+        search: encodeURIComponent(searchText.value),
+        genre: selectedGenre.value,
+      },
+      onResponse({ response }) {
+        if (response.status === 200) {
+          books.value = response._data.results;
+          const nextPage = new URL(response._data.next).searchParams.get(
+            "page"
+          );
+          currentPage.value = nextPage ? Number(nextPage) : currentPage.value;
+        }
+      },
+    });
+  },
+  { debounce: 500 }
+);
 </script>
